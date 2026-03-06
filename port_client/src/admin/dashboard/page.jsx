@@ -28,7 +28,7 @@ export default function AdminDashboard() {
 
   const fetchProjects = async () => {
 
-    const res = await fetch("http://localhost:5000/api/admin/projects");
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/projects`);
     const data = await res.json();
 
     setProjects(data);
