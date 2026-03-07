@@ -1,5 +1,5 @@
 export {default as Navbar}    from './Navbar.jsx'
-export {default as Header}    from './Header.jsx'
+export {default as Header}    from './Header/Header.jsx'
 export {default as About}     from './About.jsx'
 export {default as Projects}  from './Projects.jsx'
 export {default as Contact}   from './Contact.jsx'

@@ -21,6 +21,14 @@
   --primary-color: #EEE6CA;
   --secondary-color: #FBF9D1;
   --react-blue: #61DAFB;
+   --bg:#f8fafc;
+  --card:#ffffff;
+  --border:#e2e8f0;
+  --primary:#2563eb;
+  --success:#22c55e;
+  --danger:#ef4444;
+  --warning:#f59e0b;
+  --text:#1e293b;
 
   /* Shadows */
   --shadow-black: 4px 4px 0 #000;
@@ -30,6 +38,27 @@
   font-family: 'Poppins', 'Quicksand', sans-serif;
 }
 
+ 
+
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter, sans-serif;
+    background:var(--bg);
+  
+}
+
+.clip-hex {
+  clip-path: polygon(
+    25% 5%, 
+    75% 5%, 
+    100% 50%, 
+    75% 95%, 
+    25% 95%, 
+    0% 50%
+  );
+}
 .auto {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -98,7 +127,17 @@ html {
 .snap-container {
   scroll-snap-type: y mandatory;
 }
-
+.input{
+border:1px solid #e2e8f0;
+padding:10px;
+border-radius:6px;
+width:100%;
+}
+.input:focus{
+outline:none;
+border-color:#2563eb;
+box-shadow:0 0 0 2px rgba(37,99,235,0.2);
+}
 .snap-section {
   scroll-snap-align: start;
 }

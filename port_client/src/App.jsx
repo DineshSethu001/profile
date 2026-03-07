@@ -16,9 +16,9 @@ import AdminDashboard from "./admin/dashboard/page";
 function Home() {
   return (
     <>
-      <div className="mb-8">
+      
         <Navbar />
-      </div>
+      
 
       <Header />
       <About />

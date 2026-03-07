@@ -96,7 +96,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <>
+    <div className="mb-18">
       {/* Progress Bar */}
       <AnimatePresence>
         {showBar && (
@@ -330,6 +330,6 @@ export default function Navbar() {
 
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }
