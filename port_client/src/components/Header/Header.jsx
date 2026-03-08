@@ -5,61 +5,119 @@ import ShootingStars from "./ShootingStars";
 import { motion } from "framer-motion";
 
 const Header = () => {
+
+  const techIcons = [
+    "/images/mongo.png",
+    "/images/express.png",
+    "/images/react.png",
+    "/images/node.png"
+  ];
+
   return (
     <section
       id="home"
-      className="relative min-h-screen w-full flex items-center overflow-hidden
-      bg-gradient-to-br from-[#020617] via-[#020024] to-black text-white"
+      className="relative min-h-screen flex items-center justify-center
+      bg-gradient-to-br from-[#020617] via-[#020024] to-black text-white overflow-hidden"
     >
 
-      {/* Nebula background */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-
-        <div className="absolute w-[700px] h-[700px] bg-purple-600/20 blur-[150px] rounded-full top-[-250px] left-[-200px]" />
-
-        <div className="absolute w-[600px] h-[600px] bg-blue-500/20 blur-[150px] rounded-full bottom-[-200px] right-[-150px]" />
-
-        <div className="absolute w-[400px] h-[400px] bg-cyan-400/10 blur-[140px] rounded-full top-[30%] left-[40%]" />
-
-      </div>
+      {/* Space Background */}
 
       <GalaxyBackground />
       <ShootingStars />
 
-      <div className="relative z-10 grid md:grid-cols-2 w-full px-8 md:px-20 lg:px-28 items-center gap-16">
+      <div className="absolute inset-0 -z-10">
 
-        {/* LEFT SIDE — AVATAR ORBIT */}
+        <div className="absolute w-[600px] h-[600px] bg-purple-600/20 blur-[150px] rounded-full top-[-200px] left-[-150px]" />
 
-        <div className="flex justify-center md:justify-start">
-          <AvatarOrbit />
-        </div>
+        <div className="absolute w-[500px] h-[500px] bg-blue-500/20 blur-[150px] rounded-full bottom-[-150px] right-[-100px]" />
+
+      </div>
 
 
 
-        {/* RIGHT SIDE — CONTENT */}
+      {/* Main Container */}
 
-        <div className="flex flex-col gap-7 text-center md:text-left">
+      <div className="w-[92%] max-w-7xl grid lg:grid-cols-3 gap-8 items-center">
 
-          {/* Name */}
+        {/* LEFT CARD */}
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/5 backdrop-blur-xl border border-white/10
+          rounded-3xl p-8 flex flex-col gap-6"
+        >
 
-            Player: <span className="text-cyan-400">Dinesh Thanigaivel</span> 👋
+          <h3 className="text-lg text-gray-400">
+            Welcome 👋
+          </h3>
+
+          <h1 className="text-4xl font-bold leading-tight">
+
+            Dinesh
+            <span className="text-cyan-400"> Thanigaivel</span>
 
           </h1>
 
+          <p className="text-gray-400">
+
+            Building scalable digital products and modern web experiences.
+
+          </p>
+
+          <div className="flex gap-4 flex-wrap">
+
+            <a
+              href="#contact"
+              className="px-6 py-3 rounded-full bg-cyan-500 hover:bg-cyan-600 transition"
+            >
+              Hire Me
+            </a>
+
+            <a
+              href="/images/Dinesh_T.pdf"
+              className="px-6 py-3 rounded-full border border-white/30 hover:bg-white hover:text-black transition"
+            >
+              Resume
+            </a>
+
+          </div>
+
+        </motion.div>
 
 
-          {/* Typing animation */}
 
-          <h2 className="text-xl md:text-2xl text-gray-300 font-medium">
+        {/* CENTER CARD — AVATAR */}
+
+        <motion.div
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          className="flex justify-center"
+        >
+
+          <AvatarOrbit />
+
+        </motion.div>
+
+
+
+        {/* RIGHT CARD */}
+
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/5 backdrop-blur-xl border border-white/10
+          rounded-3xl p-8 flex flex-col gap-6"
+        >
+
+          <h2 className="text-2xl font-semibold text-cyan-400">
 
             <Typewriter
               words={[
-                "Level: MERN Stack Developer",
-                "Skill: React Frontend Developer",
-                "Skill: Node.js Backend Developer",
-                "Building Scalable Web Applications"
+                "MERN Stack Developer",
+                "React Frontend Developer",
+                "Node.js Backend Developer",
+                "Full Stack Web Engineer"
               ]}
               loop
               cursor
@@ -75,24 +133,19 @@ const Header = () => {
 
           {/* Tech Icons */}
 
-          <div className="flex justify-center md:justify-start gap-6 mt-3">
+          <div className="flex gap-5">
 
-            {[
-              "/images/mongo.png",
-              "/images/express.png",
-              "/images/react.png",
-              "/images/node.png"
-            ].map((icon, i) => (
+            {techIcons.map((icon, i) => (
 
               <motion.img
                 key={i}
                 src={icon}
                 className="w-12"
-                animate={{ y: [0, -10, 0] }}
+                animate={{ y: [0, -12, 0] }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
-                  delay: i * 0.3
+                  delay: i * 0.2
                 }}
               />
 
@@ -102,46 +155,20 @@ const Header = () => {
 
 
 
-          {/* Mission */}
+          <p className="text-gray-400 leading-relaxed">
 
-          <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
-
-            Mission: Build fast, scalable web applications using the MERN stack
-            and help startups transform ideas into real digital products with
-            modern UI, clean architecture, and high performance.
+            Mission: Build high performance web applications using the MERN
+            stack and help startups turn ideas into scalable products.
 
           </p>
 
-
-
-          {/* CTA Buttons */}
-
-          <div className="flex flex-wrap justify-center md:justify-start gap-5 pt-3">
-
-            <a
-              href="#contact"
-              className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500
-              rounded-full font-medium hover:scale-105 transition shadow-lg"
-            >
-              🚀 Start Mission
-            </a>
-
-            <a
-              href="/images/Dinesh_T.pdf"
-              className="px-8 py-3 border border-gray-500 rounded-full
-              hover:bg-white hover:text-black transition"
-            >
-              📜 Skill Scroll
-            </a>
-
-          </div>
-
-        </div>
+        </motion.div>
 
       </div>
 
     </section>
   );
+
 };
 
 export default Header;
