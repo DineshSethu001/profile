@@ -10,32 +10,56 @@ const router = express.Router();
 
 /* ---------------- LOGIN ---------------- */
 
-router.post("/login", async (req,res)=>{
+/* ---------------- LOGIN ---------------- */
 
-  const {email,password} = req.body;
+router.post("/login", async (req, res) => {
+  try {
 
-  const admin = await Admin.findOne({email});
+    const { email, password } = req.body;
 
-  if(!admin){
-    return res.status(400).json({message:"Invalid credentials"});
+    /* 1️⃣ DEFAULT ADMIN LOGIN (fallback) */
+
+    if (
+      email === process.env.ADMIN_EMAIL &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+
+      const token = jwt.sign(
+        { role: "admin" },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
+
+      return res.json({ token });
+    }
+
+
+    /* 2️⃣ DATABASE ADMIN LOGIN */
+
+    const admin = await Admin.findOne({ email });
+
+    if (!admin) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { id: admin._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({ token });
+
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
   }
-
-  const isMatch = await bcrypt.compare(password,admin.password);
-
-  if(!isMatch){
-    return res.status(400).json({message:"Invalid credentials"});
-  }
-
-  const token = jwt.sign(
-    {id:admin._id},
-    process.env.JWT_SECRET,
-    {expiresIn:"1d"}
-  );
-
-  res.json({token});
-
 });
-
 
 /* ---------------- GET PROJECTS ---------------- */
 
