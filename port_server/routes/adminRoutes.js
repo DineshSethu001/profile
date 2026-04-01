@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import Admin from "../models/Admin.js";
 import Project from "../models/Project.js";
 import upload from "../middleware/upload.js";
+import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -63,7 +64,7 @@ router.post("/login", async (req, res) => {
 
 /* ---------------- GET PROJECTS ---------------- */
 
-router.get("/projects", async(req,res)=>{
+router.get("/projects", auth, async(req,res)=>{
 
   const projects = await Project.find().sort({createdAt:-1});
 
@@ -76,6 +77,7 @@ router.get("/projects", async(req,res)=>{
 
 router.post(
   "/projects",
+  auth,
   upload.single("image"),
   async (req,res)=>{
 
@@ -110,19 +112,20 @@ router.post(
 
 router.put(
   "/projects/:id",
+  auth,
   upload.single("image"),
   async (req,res)=>{
 
     try{
 
-      const updateData = {
-        title:req.body.title,
-        description:req.body.description,
-        liveLink:req.body.liveLink,
-        sourceLink:req.body.sourceLink,
-        techStack:req.body.techStack,
-        featured:req.body.featured
-      };
+      const updateData = {};
+
+      if(req.body.title !== undefined) updateData.title = req.body.title;
+      if(req.body.description !== undefined) updateData.description = req.body.description;
+      if(req.body.liveLink !== undefined) updateData.liveLink = req.body.liveLink;
+      if(req.body.sourceLink !== undefined) updateData.sourceLink = req.body.sourceLink;
+      if(req.body.techStack !== undefined) updateData.techStack = req.body.techStack;
+      if(req.body.featured !== undefined) updateData.featured = req.body.featured;
 
       if(req.file){
         updateData.image = req.file.path;
@@ -147,7 +150,7 @@ router.put(
 
 /* ---------------- DELETE PROJECT ---------------- */
 
-router.delete("/projects/:id", async(req,res)=>{
+router.delete("/projects/:id", auth, async(req,res)=>{
 
   await Project.findByIdAndDelete(req.params.id);
 

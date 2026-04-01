@@ -19,7 +19,6 @@ export default function Login() {
     setError("");
 
     try {
-
       const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/login`, {
         method: "POST",
         headers: {
@@ -30,24 +29,18 @@ export default function Login() {
 
       const data = await res.json();
 
-      if(!res.ok){
-        setError(data.message);
-        setLoading(false);
-        return;
+      if (res.ok) {
+        localStorage.setItem("adminToken", data.token);
+        navigate("/admin/dashboard");
+      } else {
+        setError(data.message || "Login failed");
       }
-
-      localStorage.setItem("adminToken", data.token);
-
-      navigate("/admin/dashboard");
-
-    } catch(err){
-      setError("Server error");
+    } catch (error) {
+      setError("Network error");
     }
 
     setLoading(false);
   };
-
-
 
   return (
 
@@ -55,9 +48,7 @@ export default function Login() {
 
       <div className="w-[380px] bg-white shadow-xl rounded-2xl p-8 relative">
 
-
         {/* HOME BUTTON */}
-
         <button
           onClick={()=>navigate("/")}
           className="absolute top-4 left-4 flex items-center gap-1 text-sm text-gray-500 hover:text-black"
@@ -65,7 +56,6 @@ export default function Login() {
           <Home size={18} />
           Home
         </button>
-
 
         <h2 className="text-2xl font-bold text-center mb-2">
           Admin Login
@@ -75,21 +65,18 @@ export default function Login() {
           Portfolio Management Panel
         </p>
 
-
+        {/* ERROR */}
         {error && (
           <p className="text-red-500 text-sm text-center mb-4">
             {error}
           </p>
         )}
 
-
         <form onSubmit={handleSubmit} className="space-y-5">
 
           {/* EMAIL */}
           <div className="relative">
-
             <Mail className="absolute left-3 top-3 text-gray-400" size={18} />
-
             <input
               type="email"
               placeholder="Email"
@@ -98,15 +85,11 @@ export default function Login() {
               required
               className="w-full border rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-green-600 outline-none"
             />
-
           </div>
-
 
           {/* PASSWORD */}
           <div className="relative">
-
             <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
-
             <input
               type="password"
               placeholder="Password"
@@ -115,29 +98,25 @@ export default function Login() {
               required
               className="w-full border rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-green-600 outline-none"
             />
-
           </div>
 
-
-          {/* LOGIN BUTTON */}
+          {/* BUTTON */}
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition disabled:opacity-50"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Checking..." : "Login"}
           </button>
 
         </form>
 
-
         <p className="text-xs text-gray-400 text-center mt-6">
-          Authorized access only
+          Demo login → admin@gmail.com / 123456
         </p>
 
       </div>
 
     </div>
-
   );
 }

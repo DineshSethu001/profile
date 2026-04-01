@@ -1,92 +1,121 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 const Service = () => {
 
-  const services = [
-    {
-      icon: "⚛️",
-      title: "Frontend Development",
-      desc: "Modern React UI with Tailwind, responsive layouts, and smooth animations."
-    },
-    {
-      icon: "🧠",
-      title: "MERN Stack Apps",
-      desc: "Full-stack apps with Node.js, MongoDB, APIs, authentication, and dashboards."
-    },
-    {
-      icon: "🎨",
-      title: "UI to Code",
-      desc: "Convert Figma or design files into clean, scalable React components."
-    },
-    {
-      icon: "🚀",
-      title: "SaaS MVP",
-      desc: "Build startup MVP products quickly with scalable architecture."
-    }
-  ];
+const services = [
+  {
+    icon: "⚛️",
+    title: "Frontend Development",
+    desc: "I build fast, responsive, and visually engaging interfaces that keep users hooked and turn visits into real engagement."
+  },
+  {
+    icon: "🧠",
+    title: "MERN Stack Apps",
+    desc: "From idea to deployment, I develop scalable full-stack applications with clean architecture, secure APIs, and smooth user experience."
+  },
+  {
+    icon: "🎨",
+    title: "UI to Code",
+    desc: "I transform Figma designs into pixel-perfect, production-ready React code that’s clean, reusable, and built to scale."
+  },
+  {
+    icon: "🚀",
+    title: "SaaS MVP",
+    desc: "Launch your startup faster with a powerful MVP built to validate ideas, attract users, and impress investors."
+  },
+  {
+    icon: "📢",
+    title: "Social Media Ads",
+    desc: "I create scroll-stopping ad campaigns that increase reach, drive clicks, and convert attention into paying customers."
+  },
+  {
+    icon: "🌐",
+    title: "Website Development",
+    desc: "Modern, high-performance websites designed to build trust, rank on search engines, and convert visitors into clients."
+  },
+  {
+    icon: "🎬",
+    title: "Video Editing",
+    desc: "Engaging videos crafted for reels, ads, and promotions that capture attention instantly and keep your audience watching."
+  }
+];
+
+  const [active, setActive] = useState(0);
+
+  // 🔁 Auto move left → right
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActive((prev) => (prev + 1) % services.length);
+    }, 2500); // speed control
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <section
-      id="service"
-      className="py-24 bg-[var(--primary-color)] relative"
-    >
+    <section className="py-24 bg-[var(--primary-color)] overflow-hidden">
 
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-6xl mx-auto px-6 text-center">
 
-        {/* Title */}
-
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-3xl md:text-4xl font-bold text-center mb-4"
-        >
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">
           What I Can Help You With
-        </motion.h2>
+        </h2>
 
-        <p className="text-center text-gray-500 mb-14">
+        <p className="text-gray-500 mb-14">
           Services tailored for startups, founders, and businesses
         </p>
 
+        {/* Carousel */}
+        <div className="relative h-[350px] flex items-center justify-center">
 
+          {services.map((service, i) => {
 
-        {/* Cards */}
+            const offset =
+              (i - active + services.length) % services.length;
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            // keep values in range [-3,3]
+            const position =
+              offset > services.length / 2
+                ? offset - services.length
+                : offset;
 
-          {services.map((service, i) => (
+            return (
+              <motion.div
+                key={i}
+                animate={{
+                  y: position * 260, // horizontal movement
+                  scale: position === 0 ? 1.15 : 0.8, // 🔥 zoom center
+                  opacity: position === 0 ? 1 : 0,
+                  zIndex: position === 0 ? 10 : 1
+                }}
+                transition={{
+                  duration: 0.8,
+                  ease: "easeInOut"
+                }}
+                className="
+                  absolute w-[360px] 
+                  bg-white/80 backdrop-blur-xl
+                  border border-gray-200
+                  p-6 rounded-2xl
+                  shadow-lg
+                "
+              >
 
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.15 }}
-              whileHover={{ y: -8 }}
-              className="
-              bg-white/80 backdrop-blur-xl
-              border border-gray-200
-              p-8 rounded-2xl
-              shadow-md hover:shadow-xl
-              transition duration-300
-              flex flex-col items-start gap-3
-              "
-            >
+                <div className="text-3xl mb-2">
+                  {service.icon}
+                </div>
 
-              <div className="text-4xl">
-                {service.icon}
-              </div>
+                <h3 className="font-semibold text-lg mb-1">
+                  {service.title}
+                </h3>
 
-              <h3 className="text-lg font-semibold">
-                {service.title}
-              </h3>
+                <p className="text-sm text-gray-600">
+                  {service.desc}
+                </p>
 
-              <p className="text-gray-600 text-sm leading-relaxed">
-                {service.desc}
-              </p>
-
-            </motion.div>
-
-          ))}
+              </motion.div>
+            );
+          })}
 
         </div>
 
