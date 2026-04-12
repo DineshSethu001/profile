@@ -15,6 +15,6 @@ export const infoList = [
     icon: "/images/project-icon.png",
     iconDark: "/images/project-icon-dark.png",
     title: "Projects",
-    description: "Built more than 5 projects"
+    description: "Built more than 15+ projects"
   }
 ];

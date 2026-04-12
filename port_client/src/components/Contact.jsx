@@ -1,43 +1,32 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Send, CheckCircle, XCircle, Loader } from "lucide-react";
 
-/* ---------------- Animations ---------------- */
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-};
-
-const toastAnim = {
-  hidden: { opacity: 0, y: 30, scale: 0.95 },
-  visible: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, y: 30, scale: 0.95 },
-};
-
-/* ---------------- Magnetic Button Hook ---------------- */
+function DotGrid() {
+  return (
+    <div
+      className="absolute inset-0 opacity-[0.04] pointer-events-none"
+      style={{
+        backgroundImage: "radial-gradient(circle, #64748b 1px, transparent 1px)",
+        backgroundSize: "28px 28px",
+      }}
+    />
+  );
+}
 
 const useMagnetic = () => {
   const ref = useRef(null);
-
   const handleMove = (e) => {
     const el = ref.current;
     if (!el) return;
-
     const rect = el.getBoundingClientRect();
     const x = e.clientX - rect.left - rect.width / 2;
     const y = e.clientY - rect.top - rect.height / 2;
-
-    el.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+    el.style.transform = `translate(${x * 0.18}px, ${y * 0.18}px)`;
   };
-
-  const reset = () => {
-    if (ref.current) ref.current.style.transform = "translate(0,0)";
-  };
-
+  const reset = () => { if (ref.current) ref.current.style.transform = "translate(0,0)"; };
   return { ref, handleMove, reset };
 };
-
-/* ---------------- Contact Component ---------------- */
 
 export default function Contact() {
   const [toast, setToast] = useState(null);
@@ -45,10 +34,9 @@ export default function Contact() {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    setToast({ type: "loading", message: "Sending..." });
+    setToast({ type: "loading", message: "sending..." });
 
     const formData = new FormData(event.target);
-
     const payload = {
       name: formData.get("name"),
       email: formData.get("email"),
@@ -57,152 +45,156 @@ export default function Contact() {
     };
 
     try {
-      const res = await fetch(
-        process.env.NEXT_PUBLIC_MAKE_WEBHOOK_URL,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Webhook failed");
-      }
-
-      setToast({ type: "success", message: "Message sent successfully 🚀" });
+      const res = await fetch(process.env.NEXT_PUBLIC_MAKE_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Webhook failed");
+      setToast({ type: "success", message: "message sent 🚀" });
       event.target.reset();
-    } catch (error) {
-      setToast({ type: "error", message: "Something went wrong ❌" });
+    } catch {
+      setToast({ type: "error", message: "something went wrong ❌" });
     }
 
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 3500);
   };
 
   return (
-    <section
-      id="contact"
-      style={{
-        backgroundImage: "url('/images/connect.png')",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover",
-      }}
-      className="relative overflow-hidden bg-[#F6F5F2] px-[12%] py-20"
-    >
-      {/* 🌊 Animated Background Blobs */}
-      <motion.div
-        className="absolute top-[-100px] left-[-100px] w-[300px] h-[300px] bg-[#6A9457]/20 rounded-full blur-3xl"
-        animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
-        transition={{ duration: 10, repeat: Infinity }}
-      />
-      <motion.div
-        className="absolute bottom-[-120px] right-[-120px] w-[320px] h-[320px] bg-[#132440]/20 rounded-full blur-3xl"
-        animate={{ x: [0, -40, 0], y: [0, -30, 0] }}
-        transition={{ duration: 12, repeat: Infinity }}
-      />
+    <section id="contact" className="relative py-24 bg-[#f8f7f4] text-stone-800 overflow-hidden">
+      <DotGrid />
+      <div className="pointer-events-none absolute top-0 left-1/3 w-96 h-96 rounded-full bg-cyan-100/50 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-violet-100/40 blur-[120px]" />
 
-      {/* Content */}
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="relative z-10"
-      >
-        <h4 className="text-center text-lg mb-2 font-ovo">Connect With Me</h4>
-        <h2 className="text-center text-4xl font-semibold">Get In Touch</h2>
+      <div className="relative z-10 max-w-2xl mx-auto px-6">
 
-        <p className="mt-5 mb-12 max-w-2xl mx-auto text-center text-gray-600">
-          Have a project in mind? Let’s build something great together.
-        </p>
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-12 text-center"
+        >
+          <div className="font-mono text-sm text-stone-400 mb-3">
+            <span className="text-cyan-500">❯</span>{" "}
+            <span className="text-stone-500">send</span> --message
+          </div>
+          <h2 className="font-mono text-4xl font-bold tracking-tight text-stone-800">
+            Get<span className="text-cyan-500">_</span>In Touch
+          </h2>
+          <p className="mt-4 font-mono text-xs text-stone-500 leading-relaxed">
+            <span className="text-stone-300">/* </span>
+            Have a project in mind? Let's build something great together.
+            <span className="text-stone-300"> */</span>
+          </p>
+        </motion.div>
 
-        {/* Form */}
-        <form onSubmit={onSubmit} className="max-w-2xl mx-auto space-y-8">
-          {/* Floating Inputs */}
-          {["name", "email"].map((field, i) => (
-            <div key={i} className="relative">
-              <input
-                type={field === "email" ? "email" : "text"}
-                name={field}
-                required
-                className="peer w-full bg-white/30 backdrop-blur-md
-                           border border-white/40 rounded-md
-                           px-4 py-3 text-gray-900
-                           outline-none focus:border-[#1C0770]"
-              />
-              <label
-                className="absolute left-4 top-3 text-[#8100D1] font-medium
-                           bg-white/30 backdrop-blur-md px-2
-                           transition-all peer-focus:-top-2 peer-focus:text-xs
-                           peer-valid:-top-2 peer-valid:text-xs"
-              >
-                {field === "name" ? "Your Name" : "Your Email"}
-              </label>
+        {/* Form card */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-[0_4px_30px_rgba(0,0,0,0.06)]"
+        >
+          {/* Top accent */}
+          <div className="h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
+
+          {/* Terminal header bar */}
+          <div className="flex items-center gap-2 px-5 py-3 border-b border-stone-100 bg-stone-50">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-400/70" />
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400/70" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/70" />
+            <span className="ml-2 font-mono text-[10px] text-stone-400 tracking-widest">contact.sh</span>
+          </div>
+
+          <form onSubmit={onSubmit} className="p-6 space-y-5">
+
+            {/* Name + Email row */}
+            <div className="grid sm:grid-cols-2 gap-5">
+              {[
+                { name: "name", label: "your_name", type: "text" },
+                { name: "email", label: "your_email", type: "email" },
+              ].map(({ name, label, type }) => (
+                <div key={name} className="space-y-1.5">
+                  <label className="font-mono text-[10px] text-stone-400 uppercase tracking-[0.15em]">
+                    <span className="text-cyan-500">❯ </span>{label}
+                  </label>
+                  <input
+                    type={type}
+                    name={name}
+                    required
+                    className="w-full font-mono text-sm bg-[#f8f7f4] border border-stone-200 rounded-lg
+                               px-3 py-2.5 text-stone-700 placeholder-stone-300
+                               outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100
+                               transition-all duration-200"
+                  />
+                </div>
+              ))}
             </div>
-          ))}
 
-          {/* Floating Textarea */}
-          <div className="relative">
-            <textarea
-              name="message"
-              rows={5}
-              required
-              className="peer w-full bg-white/30 backdrop-blur-md
-                         border border-white/40 rounded-md
-                         px-4 py-3 text-gray-900
-                         outline-none focus:border-[#1C0770]"
-            />
-            <label
-              className="absolute left-4 top-3 text-[#8100D1] px-2
-                         bg-white/30 backdrop-blur-md font-medium
-                         transition-all peer-focus:-top-2 peer-focus:text-xs
-                         peer-valid:-top-2 peer-valid:text-xs"
-            >
-              Your Message
-            </label>
-          </div>
-
-          {/* 🧲 Magnetic Button */}
-          <div className="flex justify-center">
-            <motion.button
-              ref={magnetic.ref}
-              onMouseMove={magnetic.handleMove}
-              onMouseLeave={magnetic.reset}
-              whileTap={{ scale: 0.9 }}
-              className="relative px-8 py-3 bg-[#1C0770] text-white
-                         rounded-full flex items-center gap-2 shadow-lg"
-            >
-              Submit
-              <img
-                src="/images/right_arrow_white.png"
-                alt="Send"
-                width={16}
-                height={16}
+            {/* Message */}
+            <div className="space-y-1.5">
+              <label className="font-mono text-[10px] text-stone-400 uppercase tracking-[0.15em]">
+                <span className="text-cyan-500">❯ </span>your_message
+              </label>
+              <textarea
+                name="message"
+                rows={5}
+                required
+                className="w-full font-mono text-sm bg-[#f8f7f4] border border-stone-200 rounded-lg
+                           px-3 py-2.5 text-stone-700 placeholder-stone-300
+                           outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100
+                           transition-all duration-200 resize-none"
               />
-            </motion.button>
-          </div>
-        </form>
-      </motion.div>
+            </div>
 
-      {/* ✨ Toast */}
+            {/* Submit */}
+            <div className="flex justify-end pt-1">
+              <motion.button
+                ref={magnetic.ref}
+                onMouseMove={magnetic.handleMove}
+                onMouseLeave={magnetic.reset}
+                whileTap={{ scale: 0.97 }}
+                type="submit"
+                className="flex items-center gap-2 font-mono text-xs px-5 py-2.5
+                           bg-cyan-500 text-white rounded-lg
+                           hover:bg-cyan-600 transition-colors duration-200
+                           border border-cyan-400"
+              >
+                <span className="text-cyan-200">❯</span>
+                send_message
+                <Send size={12} />
+              </motion.button>
+            </div>
+          </form>
+        </motion.div>
+
+        {/* Bottom divider */}
+        <div className="mt-12 font-mono text-[10px] text-stone-200 tracking-wider overflow-hidden whitespace-nowrap select-none text-center">
+          {"─".repeat(60)}
+        </div>
+      </div>
+
+      {/* Toast */}
       <AnimatePresence>
         {toast && (
           <motion.div
-            variants={toastAnim}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className={`fixed bottom-6 right-6 px-6 py-3 rounded-lg text-white shadow-lg ${
-              toast.type === "success"
-                ? "bg-green-600"
-                : toast.type === "error"
-                ? "bg-red-600"
-                : "bg-blue-600"
-            }`}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className={`fixed bottom-6 right-6 flex items-center gap-2.5 px-4 py-3 rounded-xl
+                        font-mono text-xs shadow-lg border
+                        ${toast.type === "success"
+                          ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                          : toast.type === "error"
+                          ? "bg-red-50 border-red-200 text-red-700"
+                          : "bg-cyan-50 border-cyan-200 text-cyan-700"
+                        }`}
           >
+            {toast.type === "success" && <CheckCircle size={14} />}
+            {toast.type === "error" && <XCircle size={14} />}
+            {toast.type === "loading" && <Loader size={14} className="animate-spin" />}
             {toast.message}
           </motion.div>
         )}

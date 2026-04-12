@@ -1,301 +1,185 @@
-import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
-import { Menu, LogIn, X } from "lucide-react";
+"use client";
 
-const routes = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Services", href: "#service" },
-  { label: "Projects", href: "#projects" },
-  { label: "Contact", href: "#contact" }
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X } from "lucide-react";
+
+const NAV_LINKS = [
+  { label: "home", href: "#home" },
+  { label: "about", href: "#about" },
+  { label: "skills", href: "#skills" },
+  { label: "projects", href: "#projects" },
+  { label: "contact", href: "#contact" },
 ];
 
-export default function Navbar() {
-
-  const [active, setActive] = useState("home");
-  const [progress, setProgress] = useState(0);
-  const [open, setOpen] = useState(false);
+function BlinkingCursor() {
   const [visible, setVisible] = useState(true);
-  const [contactOpen, setContactOpen] = useState(false);
+  useEffect(() => {
+    const t = setInterval(() => setVisible((v) => !v), 530);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <span
+      className="inline-block w-[2px] h-[0.8em] bg-cyan-500 align-middle ml-[2px]"
+      style={{ opacity: visible ? 1 : 0, transition: "opacity 0.1s" }}
+    />
+  );
+}
 
-  const lastScrollY = useRef(0);
+export default function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeLink, setActiveLink] = useState("#home");
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-
-    const sectionIds = routes.map((r) => r.href.replace("#", ""));
-
-    const onScroll = () => {
-
-      const currentY = window.scrollY;
-
-      setVisible(!(currentY > lastScrollY.current && currentY > 100));
-      lastScrollY.current = currentY;
-
-      const height =
-        document.documentElement.scrollHeight -
-        document.documentElement.clientHeight;
-
-      setProgress((currentY / height) * 100);
-
-      for (const id of sectionIds) {
-
-        const el = document.getElementById(id);
-        if (!el) continue;
-
-        const rect = el.getBoundingClientRect();
-
-        if (rect.top <= 120 && rect.bottom >= 120) {
-          setActive(id);
-          break;
-        }
-      }
-
-    };
-
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleNav = (href) => {
+    setActiveLink(href);
+    setMenuOpen(false);
+  };
 
   return (
     <>
-      {/* Scroll Progress */}
-
-      <div className="fixed top-0 left-0 w-full h-[3px] z-[100]">
-
-        <motion.div
-          className="h-full bg-gradient-to-r from-cyan-400 to-green-400"
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.2 }}
-        />
-
-      </div>
-
-
-
-      {/* Navbar */}
-
-      <motion.header
-        animate={{ y: visible ? 0 : -100 }}
-        transition={{ duration: 0.35 }}
-        className="fixed top-4 left-0 w-full z-50 flex justify-center"
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled
+            ? "bg-[#f8f7f4]/95 backdrop-blur-md border-b border-stone-200 shadow-[0_1px_20px_rgba(0,0,0,0.06)]"
+            : "bg-transparent"
+        }`}
       >
+        {scrolled && (
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
+        )}
 
-        <div className="w-[92%] max-w-7xl bg-white/80 backdrop-blur-xl border border-gray-200 rounded-2xl shadow-lg px-6 py-3 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
 
           {/* Logo */}
-
-          <a href="#home" className="flex items-center gap-2">
-
-            <img
-              src="/images/logo.png"
-              alt="logo"
-              className="w-9 h-9"
-            />
-
-            <span className="text-xl font-semibold text-[#562F00]">
-              Dinesh Thanigaivel
+          <a href="#home" onClick={() => handleNav("#home")} className="flex items-center gap-2.5 group">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-400/80 group-hover:bg-red-400 transition-colors duration-200" />
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80 group-hover:bg-amber-400 transition-colors duration-200" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/80 group-hover:bg-emerald-400 transition-colors duration-200" />
             </span>
-
+            <span className="font-mono text-sm text-stone-400 tracking-widest hidden sm:inline">
+              dinesh.sh
+            </span>
           </a>
 
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-0.5">
+            {NAV_LINKS.map(({ label, href }) => (
+              <a
+                key={href}
+                href={href}
+                onClick={() => handleNav(href)}
+                className={`group relative font-mono text-xs px-3 py-1.5 rounded-md transition-all duration-200 ${
+                  activeLink === href
+                    ? "text-cyan-600 bg-cyan-50"
+                    : "text-stone-500 hover:text-stone-800 hover:bg-stone-100"
+                }`}
+              >
+                <span className={`mr-1 transition-colors duration-200 ${
+                  activeLink === href ? "text-cyan-400" : "text-stone-300 group-hover:text-stone-400"
+                }`}>./</span>
+                {label}
+                {activeLink === href && (
+                  <motion.span
+                    layoutId="nav-underline"
+                    className="absolute bottom-0 left-3 right-3 h-[1.5px] bg-cyan-400/70 rounded-full"
+                    transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                  />
+                )}
+              </a>
+            ))}
+          </nav>
 
-
-          {/* Desktop Links */}
-
-          <ul className="hidden md:flex items-center gap-10 font-medium">
-
-            {routes.map((r) => {
-
-              const id = r.href.replace("#", "");
-
-              return (
-                <li key={r.label}>
-
-                  <a
-                    href={r.href}
-                    className={`relative transition ${
-                      active === id
-                        ? "text-black"
-                        : "text-gray-600 hover:text-black"
-                    }`}
-                  >
-
-                    {r.label}
-
-                    {active === id && (
-                      <motion.span
-                        layoutId="underline"
-                        className="absolute -bottom-1 left-0 w-full h-[2px] bg-black"
-                      />
-                    )}
-
-                  </a>
-
-                </li>
-              );
-
-            })}
-
-          </ul>
-
-
-
-          {/* Desktop Buttons */}
-
-          <div className="hidden md:flex gap-3">
+          {/* CTA + hamburger */}
+          <div className="flex items-center gap-3">
+            <a
+              href="#contact"
+              onClick={() => handleNav("#contact")}
+              className="hidden md:flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 rounded-md border border-cyan-300 text-cyan-600 hover:bg-cyan-50 hover:border-cyan-400 transition-all duration-200"
+            >
+              <span className="text-cyan-500">❯</span>
+              hire_me
+              <BlinkingCursor />
+            </a>
 
             <button
-              onClick={() => setContactOpen(true)}
-              className="px-6 py-2 rounded-full bg-green-600 text-white font-medium hover:bg-green-700 transition"
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="md:hidden w-8 h-8 flex items-center justify-center rounded-md border border-stone-200 text-stone-500 hover:border-cyan-300 hover:text-cyan-600 transition-all duration-200"
             >
-              Hire Me →
+              <AnimatePresence mode="wait" initial={false}>
+                {menuOpen ? (
+                  <motion.span key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                    <X size={15} />
+                  </motion.span>
+                ) : (
+                  <motion.span key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                    <Menu size={15} />
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </button>
-
-            <Link
-              to="/admin/login"
-              className="px-5 py-2 rounded-full border border-green-600 text-green-700 flex items-center gap-2 hover:bg-green-600 hover:text-white transition"
-            >
-              <LogIn size={16} />
-              Admin
-            </Link>
-
           </div>
-
-
-
-          {/* Mobile Button */}
-
-          <button
-            className="md:hidden"
-            onClick={() => setOpen(true)}
-          >
-            <Menu />
-          </button>
-
         </div>
-
-      </motion.header>
-
-
+      </header>
 
       {/* Mobile Menu */}
-
       <AnimatePresence>
-        {open && (
-
+        {menuOpen && (
           <motion.div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[90]"
-            onClick={() => setOpen(false)}
+            key="mobile-menu"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="fixed top-14 left-3 right-3 z-40 bg-[#f8f7f4] border border-stone-200 rounded-xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)]"
           >
-
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              className="absolute right-0 top-0 w-[80%] h-full bg-white p-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-
-              <button
-                onClick={() => setOpen(false)}
-                className="absolute top-5 right-5"
-              >
-                <X />
-              </button>
-
-              <ul className="mt-16 flex flex-col gap-6 text-lg">
-
-                {routes.map((r) => (
-                  <li key={r.label}>
-                    <a
-                      href={r.href}
-                      onClick={() => setOpen(false)}
-                      className="text-gray-700"
-                    >
-                      {r.label}
-                    </a>
-                  </li>
-                ))}
-
-              </ul>
-
-              <div className="mt-10 flex flex-col gap-4">
-
-                <button
-                  onClick={() => {
-                    setContactOpen(true);
-                    setOpen(false);
-                  }}
-                  className="py-3 bg-green-600 text-white rounded-full"
+            <div className="h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
+            <div className="px-4 pt-3 pb-1 font-mono text-xs text-stone-400">
+              <span className="text-cyan-500">❯</span>{" "}
+              <span className="text-stone-500">navigate</span>
+            </div>
+            <div className="p-2 flex flex-col gap-0.5">
+              {NAV_LINKS.map(({ label, href }, i) => (
+                <motion.a
+                  key={href}
+                  href={href}
+                  onClick={() => handleNav(href)}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  className={`group flex items-center gap-2 font-mono text-sm px-3 py-2 rounded-lg transition-all duration-150 ${
+                    activeLink === href
+                      ? "bg-cyan-50 text-cyan-600"
+                      : "text-stone-500 hover:text-stone-800 hover:bg-stone-100"
+                  }`}
                 >
-                  Contact Me
-                </button>
-
-                <Link
-                  to="/admin/login"
-                  className="py-3 border border-green-600 rounded-full text-center"
+                  <span className={`text-xs ${activeLink === href ? "text-cyan-400" : "text-stone-300"}`}>./</span>
+                  {label}
+                  {activeLink === href && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400" />}
+                </motion.a>
+              ))}
+              <div className="border-t border-stone-100 mt-1 pt-2 px-1">
+                <a
+                  href="#contact"
+                  onClick={() => handleNav("#contact")}
+                  className="flex items-center justify-center gap-2 font-mono text-xs py-2 rounded-lg border border-cyan-300 text-cyan-600 hover:bg-cyan-50 transition-all duration-200"
                 >
-                  Admin Login
-                </Link>
-
+                  <span>❯</span> hire_me <BlinkingCursor />
+                </a>
               </div>
-
-            </motion.div>
-
+            </div>
           </motion.div>
-
         )}
       </AnimatePresence>
 
-
-
-      {/* Contact Modal */}
-
-      <AnimatePresence>
-        {contactOpen && (
-
-          <motion.div
-            className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center"
-            onClick={() => setContactOpen(false)}
-          >
-
-            <motion.div
-              className="bg-white p-6 rounded-2xl w-[90%] max-w-sm"
-              onClick={(e) => e.stopPropagation()}
-            >
-
-              <h3 className="text-lg font-semibold mb-4">
-                Let’s connect
-              </h3>
-
-              <div className="flex gap-4">
-
-                <a
-                  href="mailto:dineshsethu15981@gmail.com"
-                  className="flex-1 py-3 border rounded-lg text-center"
-                >
-                  📧 Email
-                </a>
-
-                <a
-                  href="https://wa.me/917339572897"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1 py-3 bg-green-500 text-white rounded-lg text-center"
-                >
-                  💬 WhatsApp
-                </a>
-
-              </div>
-
-            </motion.div>
-
-          </motion.div>
-
-        )}
-      </AnimatePresence>
+      <div className="h-14" />
     </>
   );
 }

@@ -23,7 +23,7 @@ function Home() {
       <Header />
       <About />
       <Service />
-      <Projects />
+      {/* <Projects /> */}
       <Contact />
       <Footer />
     </>

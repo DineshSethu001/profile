@@ -1,0 +1,19 @@
+{
+  "name": "port-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portfolio Client and Server",
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w port_client\" \"npm run dev -w port_server\"",
+    "install-all": "npm install && npm install -w port_client && npm install -w port_server",
+    "build": "npm run build -w port_client",
+    "start": "npm start -w port_server"
+  },
+  "workspaces": [
+    "port_client",
+    "port_server"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
