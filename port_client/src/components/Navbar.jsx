@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
@@ -27,9 +28,14 @@ function BlinkingCursor() {
 }
 
 export default function Navbar() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("#home");
   const [scrolled, setScrolled] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(
+    Boolean(localStorage.getItem("adminToken"))
+  );
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -37,9 +43,38 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const syncAuth = () => setIsAdminLoggedIn(Boolean(localStorage.getItem("adminToken")));
+    window.addEventListener("storage", syncAuth);
+    window.addEventListener("focus", syncAuth);
+
+    return () => {
+      window.removeEventListener("storage", syncAuth);
+      window.removeEventListener("focus", syncAuth);
+    };
+  }, []);
+
   const handleNav = (href) => {
     setActiveLink(href);
     setMenuOpen(false);
+  };
+
+  const handleAdminClick = () => {
+    setMenuOpen(false);
+    navigate(isAdminLoggedIn ? "/admin/dashboard" : "/admin/login");
+  };
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem("adminToken");
+    setIsAdminLoggedIn(false);
+    setMenuOpen(false);
+
+    if (location.pathname.startsWith("/admin")) {
+      navigate("/");
+      return;
+    }
+
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (
@@ -99,6 +134,23 @@ export default function Navbar() {
 
           {/* CTA + hamburger */}
           <div className="flex items-center gap-3">
+            <button
+              onClick={handleAdminClick}
+              className="hidden md:flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 rounded-md border border-stone-200 text-stone-600 hover:border-cyan-300 hover:text-cyan-600 hover:bg-cyan-50 transition-all duration-200"
+            >
+              <span className="text-stone-400">./</span>
+              {isAdminLoggedIn ? "admin_panel" : "admin_login"}
+            </button>
+
+            {isAdminLoggedIn && (
+              <button
+                onClick={handleAdminLogout}
+                className="hidden md:flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 rounded-md border border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300 transition-all duration-200"
+              >
+                logout
+              </button>
+            )}
+
             <a
               href="#contact"
               onClick={() => handleNav("#contact")}
@@ -166,6 +218,21 @@ export default function Navbar() {
                 </motion.a>
               ))}
               <div className="border-t border-stone-100 mt-1 pt-2 px-1">
+                <button
+                  onClick={handleAdminClick}
+                  className="w-full flex items-center justify-center gap-2 font-mono text-xs py-2 rounded-lg border border-stone-200 text-stone-600 hover:border-cyan-300 hover:bg-cyan-50 transition-all duration-200"
+                >
+                  <span>./</span>
+                  {isAdminLoggedIn ? "admin_panel" : "admin_login"}
+                </button>
+                {isAdminLoggedIn && (
+                  <button
+                    onClick={handleAdminLogout}
+                    className="w-full mt-2 flex items-center justify-center gap-2 font-mono text-xs py-2 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-all duration-200"
+                  >
+                    logout
+                  </button>
+                )}
                 <a
                   href="#contact"
                   onClick={() => handleNav("#contact")}

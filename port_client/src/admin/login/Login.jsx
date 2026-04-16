@@ -1,122 +1,81 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Mail, Lock, Home } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { loginAdmin } from "./authStorage";
 
-export default function Login() {
-
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [email,setEmail] = useState("");
-  const [password,setPassword] = useState("");
-  const [error,setError] = useState("");
-  const [loading,setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-
-    e.preventDefault();
-
-    setLoading(true);
-    setError("");
+  const handleLogin = async (e) => {
+    e.preventDefault(); // important
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password })
+      loginAdmin({ email, password });
+      window.dispatchEvent(new Event("storage"));
+      alert("Login successful 🚀");
+      navigate(location.state?.from?.pathname || "/admin/dashboard", {
+        replace: true,
       });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        localStorage.setItem("adminToken", data.token);
-        navigate("/admin/dashboard");
-      } else {
-        setError(data.message || "Login failed");
-      }
-    } catch (error) {
-      setError("Network error");
+    } catch (err) {
+      alert(err.message || "Login failed ❌");
     }
-
-    setLoading(false);
   };
 
   return (
-
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-gray-200">
-
-      <div className="w-[380px] bg-white shadow-xl rounded-2xl p-8 relative">
-
-        {/* HOME BUTTON */}
-        <button
-          onClick={()=>navigate("/")}
-          className="absolute top-4 left-4 flex items-center gap-1 text-sm text-gray-500 hover:text-black"
-        >
-          <Home size={18} />
-          Home
-        </button>
-
-        <h2 className="text-2xl font-bold text-center mb-2">
-          Admin Login
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      
+      {/* Card */}
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+        
+        <h2 className="text-2xl font-bold text-center mb-6">
+          Welcome Back 👋
         </h2>
 
-        <p className="text-sm text-gray-500 text-center mb-6">
-          Portfolio Management Panel
-        </p>
+        <form onSubmit={handleLogin} className="space-y-4">
+          
+          {/* Email */}
+          <input
+            type="email"
+            placeholder="Email"
+            autoComplete="email"
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-        {/* ERROR */}
-        {error && (
-          <p className="text-red-500 text-sm text-center mb-4">
-            {error}
-          </p>
-        )}
+          {/* Password */}
+          <input
+            type="password"
+            placeholder="Password"
+            autoComplete="current-password"
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-
-          {/* EMAIL */}
-          <div className="relative">
-            <Mail className="absolute left-3 top-3 text-gray-400" size={18} />
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e)=>setEmail(e.target.value)}
-              required
-              className="w-full border rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-green-600 outline-none"
-            />
-          </div>
-
-          {/* PASSWORD */}
-          <div className="relative">
-            <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e)=>setPassword(e.target.value)}
-              required
-              className="w-full border rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-green-600 outline-none"
-            />
-          </div>
-
-          {/* BUTTON */}
+          {/* Button */}
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition disabled:opacity-50"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200"
           >
-            {loading ? "Checking..." : "Login"}
+            Login
           </button>
-
         </form>
 
-        <p className="text-xs text-gray-400 text-center mt-6">
-          Demo login → admin@gmail.com / 123456
+        {/* Register Link */}
+        <p className="text-sm text-center mt-4">
+          Don’t have an account?{" "}
+          <Link
+            to="/admin/register"
+            className="text-blue-600 font-medium hover:underline"
+          >
+            Register
+          </Link>
         </p>
 
       </div>
-
     </div>
   );
 }
+
+export default Login;

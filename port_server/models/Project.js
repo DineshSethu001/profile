@@ -4,39 +4,52 @@ const projectSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true
+      required: true,
+      trim: true,
     },
 
     description: {
-      type: String
-    },
-
-    image: {
-      type: String
-    },
-
-    liveLink: {
-      type: String
-    },
-
-    sourceLink: {
-      type: String
+      type: String,
+      required: true,
     },
 
     techStack: [
       {
-        type: String
-      }
+        type: [String],
+        default:[]
+      },
     ],
+
+    githubLink:{type: String,default:" "},
+    liveLink: String,
+    sourceLink: String,
+    image: String,
+
+    // 🔥 Multiple images support
+    images: [
+      {
+        type: String,
+      },
+    ],
+
+    category: {
+      type: String,
+      trim:true,
+      enum: ["frontend", "backend", "fullstack", "mobile"],
+      default: "fullstack",
+    },
 
     featured: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+      index:true
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
-export default mongoose.model("Project", projectSchema);
+const Project = mongoose.model("Project", projectSchema, "ProjectCollection");
+
+export default Project;
