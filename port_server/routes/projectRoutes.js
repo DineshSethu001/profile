@@ -3,6 +3,36 @@ import Project from "../models/Project.js";
 
 const router = express.Router();
 
+function normalizeOptionalString(value) {
+  const normalized = String(value ?? "").trim();
+
+  if (!normalized) {
+    return "";
+  }
+
+  const lowerCased = normalized.toLowerCase();
+
+  if (lowerCased === "undefined" || lowerCased === "null") {
+    return "";
+  }
+
+  return normalized;
+}
+
+function normalizeOptionalUrl(value) {
+  const normalized = normalizeOptionalString(value);
+
+  if (!normalized) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(normalized)) {
+    return normalized;
+  }
+
+  return "";
+}
+
 function normalizeProjectPayload(body) {
   const {
     title,
@@ -25,22 +55,22 @@ function normalizeProjectPayload(body) {
         .filter(Boolean);
 
   const normalizedImages = Array.isArray(images)
-    ? images.map((item) => item.trim()).filter(Boolean)
+    ? images.map((item) => normalizeOptionalUrl(item)).filter(Boolean)
     : String(images || "")
         .split(",")
-        .map((item) => item.trim())
+        .map((item) => normalizeOptionalUrl(item))
         .filter(Boolean);
 
   return {
-    title: title?.trim(),
-    description: description?.trim(),
+    title: normalizeOptionalString(title),
+    description: normalizeOptionalString(description),
     techStack: normalizedTechStack,
-    githubLink: githubLink?.trim() || "",
-    liveLink: liveLink?.trim() || "",
-    sourceLink: sourceLink?.trim() || "",
-    image: image?.trim() || "",
+    githubLink: normalizeOptionalUrl(githubLink),
+    liveLink: normalizeOptionalUrl(liveLink),
+    sourceLink: normalizeOptionalUrl(sourceLink),
+    image: normalizeOptionalUrl(image),
     images: normalizedImages,
-    category: category || "fullstack",
+    category: normalizeOptionalString(category) || "fullstack",
     featured: Boolean(featured),
   };
 }

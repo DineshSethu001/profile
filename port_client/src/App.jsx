@@ -8,6 +8,8 @@ import {
   Service,
   Footer,
 } from "./components";
+import { Toaster } from "react-hot-toast";
+
 import Login from "./admin/login/Login";
 import Register from "./admin/login/Register";
 import Dashboard from "./admin/dashboard/Dashboard";
@@ -15,6 +17,8 @@ import Dashboard from "./admin/dashboard/Dashboard";
 function HomePage() {
   return (
     <>
+          <Toaster position="top-right" />
+
       <Navbar />
       <main>
         <Header />
@@ -28,19 +32,21 @@ function HomePage() {
   );
 }
 
+// 🔐 Protected Route (only logged-in users)
 function ProtectedAdminRoute({ children }) {
-  const isAdminLoggedIn = Boolean(localStorage.getItem("adminToken"));
+  const isAdminLoggedIn = Boolean(localStorage.getItem("token"));
   const location = useLocation();
 
   if (!isAdminLoggedIn) {
-    return <Navigate to="/admin/login" replace state={{ from: location }} />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   return children;
 }
 
+// 🚪 Public Route (only for NOT logged-in users)
 function PublicAdminRoute({ children }) {
-  const isAdminLoggedIn = Boolean(localStorage.getItem("adminToken"));
+  const isAdminLoggedIn = Boolean(localStorage.getItem("token"));
 
   if (isAdminLoggedIn) {
     return <Navigate to="/admin/dashboard" replace />;
@@ -52,15 +58,20 @@ function PublicAdminRoute({ children }) {
 export default function App() {
   return (
     <Routes>
+      {/* 🏠 Home */}
       <Route path="/" element={<HomePage />} />
+
+      {/* 🔑 Login */}
       <Route
-        path="/admin/login"
+        path="/login"
         element={
           <PublicAdminRoute>
             <Login />
           </PublicAdminRoute>
         }
       />
+
+      {/* 📝 Register */}
       <Route
         path="/admin/register"
         element={
@@ -69,6 +80,8 @@ export default function App() {
           </PublicAdminRoute>
         }
       />
+
+      {/* 📊 Dashboard */}
       <Route
         path="/admin/dashboard"
         element={
@@ -77,6 +90,8 @@ export default function App() {
           </ProtectedAdminRoute>
         }
       />
+
+      {/* ❌ Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

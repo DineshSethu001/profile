@@ -34,9 +34,18 @@ export default function Navbar() {
   const [activeLink, setActiveLink] = useState("#home");
   const [scrolled, setScrolled] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(
-    Boolean(localStorage.getItem("adminToken"))
+    Boolean(localStorage.getItem("token"))
   );
 
+const handleAdminClick = () => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    navigate("/dashboard"); // already logged in
+  } else {
+    navigate("/login",{replace:true}); // not logged in
+  }
+};
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
@@ -44,7 +53,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const syncAuth = () => setIsAdminLoggedIn(Boolean(localStorage.getItem("adminToken")));
+    const syncAuth = () => setIsAdminLoggedIn(Boolean(localStorage.getItem("token")));
     window.addEventListener("storage", syncAuth);
     window.addEventListener("focus", syncAuth);
 
@@ -59,24 +68,13 @@ export default function Navbar() {
     setMenuOpen(false);
   };
 
-  const handleAdminClick = () => {
-    setMenuOpen(false);
-    navigate(isAdminLoggedIn ? "/admin/dashboard" : "/admin/login");
-  };
 
-  const handleAdminLogout = () => {
-    localStorage.removeItem("adminToken");
-    setIsAdminLoggedIn(false);
-    setMenuOpen(false);
+const handleAdminLogout = () => {
+  setIsAdminLoggedIn(false);
+  setMenuOpen(false);
 
-    if (location.pathname.startsWith("/admin")) {
-      navigate("/");
-      return;
-    }
-
-    window.dispatchEvent(new Event("storage"));
-  };
-
+  navigate("/login"); // 👈 better UX
+};
   return (
     <>
       <header
@@ -142,14 +140,7 @@ export default function Navbar() {
               {isAdminLoggedIn ? "admin_panel" : "admin_login"}
             </button>
 
-            {isAdminLoggedIn && (
-              <button
-                onClick={handleAdminLogout}
-                className="hidden md:flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 rounded-md border border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300 transition-all duration-200"
-              >
-                logout
-              </button>
-            )}
+          
 
             <a
               href="#contact"

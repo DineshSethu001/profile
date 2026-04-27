@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { getApiUrl } from "../../lib/api";
+import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -31,6 +33,8 @@ function mapProjectToForm(project) {
 }
 
 function Dashboard() {
+  const navigate = useNavigate();
+
   const [projects, setProjects] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [editingProjectId, setEditingProjectId] = useState(null);
@@ -41,10 +45,14 @@ function Dashboard() {
   const [success, setSuccess] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
+const handleLogout = () => {
+  localStorage.removeItem("token");
+navigate("/login", { replace: true });
+};
   const loadProjects = async () => {
     try {
       setError("");
-      const res = await fetch("/api/projects");
+      const res = await fetch(getApiUrl("/projects"));
 
       if (!res.ok) {
         throw new Error("Failed to load projects.");
@@ -59,6 +67,13 @@ function Dashboard() {
       setIsLoading(false);
     }
   };
+  useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    navigate("/login");
+  }
+}, [navigate]);
 
   useEffect(() => {
     loadProjects();
@@ -97,7 +112,9 @@ function Dashboard() {
     setSuccess("");
 
     const isEditing = Boolean(editingProjectId);
-    const url = isEditing ? `/api/projects/${editingProjectId}` : "/api/projects";
+    const url = isEditing
+      ? getApiUrl(`/projects/${editingProjectId}`)
+      : getApiUrl("/projects");
     const method = isEditing ? "PUT" : "POST";
 
     try {
@@ -153,7 +170,7 @@ function Dashboard() {
     setSuccess("");
 
     try {
-      const res = await fetch(`/api/projects/${projectId}`, {
+      const res = await fetch(getApiUrl(`/projects/${projectId}`), {
         method: "DELETE",
       });
 
@@ -196,38 +213,47 @@ function Dashboard() {
   }, [currentPage, safeCurrentPage]);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 md:p-8">
+    <div className="min-h-screen  bg-[#0f172a] p-6 md:p-8">
       <div className="mx-auto max-w-7xl space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Add, edit, and delete projects from your portfolio collection.
-          </p>
-        </div>
+        <div className="flex items-center justify-between">
+  <div>
+    <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+    <p className="mt-2 text-sm text-gray-600">
+      Add, edit, and delete projects from your portfolio collection.
+    </p>
+  </div>
+
+  <button
+    onClick={handleLogout}
+    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+  >
+    Logout
+  </button>
+</div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
-            <p className="text-sm text-gray-500">Total Projects</p>
-            <p className="mt-2 text-3xl font-semibold text-gray-900">{total}</p>
+          <div className="rounded-2xl bg-[#111827]] p-5 shadow-sm ring-1 ring-gray-200">
+            <p className="text-sm text-[#9AD872]">Total Projects</p>
+            <p className="mt-2 text-3xl font-semibold text-[#E13F7C]">{total}</p>
           </div>
-          <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
-            <p className="text-sm text-gray-500">Featured Projects</p>
-            <p className="mt-2 text-3xl font-semibold text-gray-900">{featured}</p>
+          <div className="rounded-2xl bg-[#111827] p-5 shadow-sm ring-1 ring-gray-200">
+            <p className="text-sm text-[#9AD872]">Featured Projects</p>
+            <p className="mt-2 text-3xl font-semibold text-[#E13F7C]">{featured}</p>
           </div>
-          <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
-            <p className="text-sm text-gray-500">Categories</p>
-            <p className="mt-2 text-3xl font-semibold text-gray-900">{categories}</p>
+          <div className="rounded-2xl bg-[#111827] p-5 shadow-sm ring-1 ring-gray-200">
+            <p className="text-sm text-[#9AD872]">Categories</p>
+            <p className="mt-2 text-3xl font-semibold text-[#E13F7C]">{categories}</p>
           </div>
         </div>
 
         <div className="grid gap-8 xl:grid-cols-[420px_1fr]">
-          <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+          <section className="rounded-2xl bg-[#111827] p-6 shadow-sm ring-1 ring-gray-200">
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">
                   {isEditing ? "Edit Project" : "Add Project"}
                 </h2>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-[#9AD872]">
                   {isEditing
                     ? "Update the selected project and save your changes."
                     : "Fill in the project details and publish it to the portfolio."}
@@ -238,7 +264,7 @@ function Dashboard() {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                  className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-[#FFDE42] transition hover:bg-gray-50"
                 >
                   Cancel
                 </button>
@@ -247,7 +273,7 @@ function Dashboard() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="mb-1 block text-sm font-medium text-[#FFDE42]">
                   Title
                 </label>
                 <input
@@ -256,12 +282,12 @@ function Dashboard() {
                   value={form.title}
                   onChange={handleChange}
                   required
-                  className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full text-[#2FA4D7] rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="mb-1 block text-sm font-medium text-[#FFDE42]">
                   Description
                 </label>
                 <textarea
@@ -270,12 +296,12 @@ function Dashboard() {
                   onChange={handleChange}
                   rows={4}
                   required
-                  className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full text-[#2FA4D7] rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="mb-1 block text-sm font-medium text-[#FFDE42]">
                   Tech Stack
                 </label>
                 <input
@@ -284,20 +310,20 @@ function Dashboard() {
                   value={form.techStack}
                   onChange={handleChange}
                   placeholder="React, Node.js, MongoDB"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-xl text-[#2FA4D7] border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className="mb-1 block text-sm font-medium text-[#FFDE42]">
                     Category
                   </label>
                   <select
                     name="category"
                     value={form.category}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full text-[#2FA4D7] rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   >
                     <option value="frontend">Frontend</option>
                     <option value="backend">Backend</option>
@@ -305,21 +331,21 @@ function Dashboard() {
                     <option value="mobile">Mobile</option>
                   </select>
                 </div>
-
-                <label className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700">
+{/* 
+                <label className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 text-sm text-[#FFDE42]">
                   <input
                     type="checkbox"
                     name="featured"
                     checked={form.featured}
                     onChange={handleChange}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 text-[#2FA4D7] rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   Featured project
-                </label>
+                </label> */}
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="mb-1 block text-sm font-medium text-[#FFDE42]">
                   Cover Image URL
                 </label>
                 <input
@@ -328,12 +354,12 @@ function Dashboard() {
                   value={form.image}
                   onChange={handleChange}
                   placeholder="https://example.com/cover.png"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full text-[#2FA4D7] rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="mb-1 block text-sm font-medium text-[#FFDE42]">
                   Gallery Image URLs
                 </label>
                 <input
@@ -342,13 +368,13 @@ function Dashboard() {
                   value={form.images}
                   onChange={handleChange}
                   placeholder="https://..., https://..."
-                  className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full text-[#2FA4D7] rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className="mb-1 block text-sm font-medium text-[#FFDE42]">
                     Live Link
                   </label>
                   <input
@@ -357,12 +383,12 @@ function Dashboard() {
                     value={form.liveLink}
                     onChange={handleChange}
                     placeholder="https://project-live.com"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full text-[#2FA4D7] rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className="mb-1 block text-sm font-medium text-[#FFDE42]">
                     Source Link
                   </label>
                   <input
@@ -371,13 +397,13 @@ function Dashboard() {
                     value={form.sourceLink}
                     onChange={handleChange}
                     placeholder="https://github.com/..."
-                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full text-[#2FA4D7] rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="mb-1 block text-sm font-medium text-[#FFDE42]">
                   GitHub Link
                 </label>
                 <input
@@ -386,7 +412,7 @@ function Dashboard() {
                   value={form.githubLink}
                   onChange={handleChange}
                   placeholder="https://github.com/..."
-                  className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full text-[#2FA4D7] rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
@@ -406,7 +432,7 @@ function Dashboard() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+                  className="flex-1 text-[#2FA4D7] rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
                 >
                   {isSubmitting
                     ? isEditing
@@ -421,7 +447,7 @@ function Dashboard() {
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                    className="rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-[#FFDE42] transition hover:bg-gray-50"
                   >
                     Clear
                   </button>
@@ -430,11 +456,11 @@ function Dashboard() {
             </form>
           </section>
 
-          <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+          <section className="rounded-2xl bg-[#111827] p-6 shadow-sm ring-1 ring-gray-200">
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">Projects</h2>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-[#9AD872]">
                   Review the projects currently shown in your portfolio.
                 </p>
               </div>
@@ -442,16 +468,16 @@ function Dashboard() {
               <button
                 type="button"
                 onClick={loadProjects}
-                className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-[#FFDE42] transition hover:bg-gray-50"
               >
                 Refresh
               </button>
             </div>
 
             {isLoading ? (
-              <p className="text-sm text-gray-500">Loading projects...</p>
+              <p className="text-sm text-[#9AD872]">Loading projects...</p>
             ) : projects.length === 0 ? (
-              <p className="rounded-xl border border-dashed border-gray-300 px-4 py-8 text-center text-sm text-gray-500">
+              <p className="rounded-xl border border-dashed border-gray-300 px-4 py-8 text-center text-sm text-[#9AD872]">
                 No projects found yet.
               </p>
             ) : (
@@ -459,7 +485,7 @@ function Dashboard() {
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-left text-sm">
                     <thead>
-                      <tr className="border-b border-gray-200 text-gray-500">
+                      <tr className="border-b border-gray-200 text-[#9AD872]">
                         <th className="px-4 py-3 font-medium">Title</th>
                         <th className="px-4 py-3 font-medium">Category</th>
                         <th className="px-4 py-3 font-medium">Tech Stack</th>
@@ -472,17 +498,17 @@ function Dashboard() {
                         <tr key={project._id} className="border-b border-gray-100 align-top">
                           <td className="px-4 py-3">
                             <div className="font-medium text-gray-900">{project.title}</div>
-                            <div className="mt-1 max-w-md text-xs text-gray-500">
+                            <div className="mt-1 max-w-md text-xs text-[#9AD872]">
                               {project.description}
                             </div>
                           </td>
-                          <td className="px-4 py-3 capitalize text-gray-700">
+                          <td className="px-4 py-3 capitalize text-[#FFDE42]">
                             {project.category || "-"}
                           </td>
-                          <td className="px-4 py-3 text-gray-700">
+                          <td className="px-4 py-3 text-[#FFDE42]">
                             {project.techStack?.length ? project.techStack.join(", ") : "-"}
                           </td>
-                          <td className="px-4 py-3 text-gray-700">
+                          <td className="px-4 py-3 text-[#FFDE42]">
                             {project.featured ? "Yes" : "No"}
                           </td>
                           <td className="px-4 py-3">
@@ -520,12 +546,12 @@ function Dashboard() {
                       type="button"
                       onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                       disabled={safeCurrentPage === 1}
-                      className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-[#FFDE42] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Previous
                     </button>
 
-                    <span className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700">
+                    <span className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-[#FFDE42]">
                       Page {safeCurrentPage} of {totalPages}
                     </span>
 
@@ -535,7 +561,7 @@ function Dashboard() {
                         setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                       }
                       disabled={safeCurrentPage === totalPages}
-                      className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-[#FFDE42] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Next
                     </button>
