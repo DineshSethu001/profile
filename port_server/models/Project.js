@@ -13,12 +13,10 @@ const projectSchema = new mongoose.Schema(
       required: true,
     },
 
-    techStack: [
-      {
-        type: [String],
-        default:[]
-      },
-    ],
+    techStack: {
+      type: [String],
+      default: [],
+    },
 
     githubLink:{type: String,default:" "},
     liveLink: String,

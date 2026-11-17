@@ -11,7 +11,13 @@ function normalizeBaseUrl(value) {
     return "/api";
   }
 
-  return normalized.endsWith("/") ? normalized.slice(0, -1) : normalized;
+  const withoutTrailingSlash = normalized.endsWith("/")
+    ? normalized.slice(0, -1)
+    : normalized;
+
+  return /\/api$/i.test(withoutTrailingSlash)
+    ? withoutTrailingSlash
+    : `${withoutTrailingSlash}/api`;
 }
 
 const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_URL);

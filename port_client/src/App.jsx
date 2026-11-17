@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import {
   Navbar,
@@ -11,8 +12,9 @@ import {
 import { Toaster } from "react-hot-toast";
 
 import Login from "./admin/login/Login";
-import Register from "./admin/login/Register";
+// import Register from "./admin/login/Register";
 import Dashboard from "./admin/dashboard/Dashboard";
+import { getAdminProfile } from "./admin/login/authStorage";
 
 function HomePage() {
   return (
@@ -34,10 +36,26 @@ function HomePage() {
 
 // 🔐 Protected Route (only logged-in users)
 function ProtectedAdminRoute({ children }) {
-  const isAdminLoggedIn = Boolean(localStorage.getItem("token"));
   const location = useLocation();
+  const [status, setStatus] = useState("checking");
 
-  if (!isAdminLoggedIn) {
+  useEffect(() => {
+    let active = true;
+
+    getAdminProfile()
+      .then(() => active && setStatus("authenticated"))
+      .catch(() => active && setStatus("unauthenticated"));
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (status === "checking") {
+    return <div className="min-h-screen bg-[#0f172a]" aria-label="Checking admin session" />;
+  }
+
+  if (status === "unauthenticated") {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
@@ -46,12 +64,6 @@ function ProtectedAdminRoute({ children }) {
 
 // 🚪 Public Route (only for NOT logged-in users)
 function PublicAdminRoute({ children }) {
-  const isAdminLoggedIn = Boolean(localStorage.getItem("token"));
-
-  if (isAdminLoggedIn) {
-    return <Navigate to="/admin/dashboard" replace />;
-  }
-
   return children;
 }
 
@@ -72,14 +84,14 @@ export default function App() {
       />
 
       {/* 📝 Register */}
-      <Route
+      {/* <Route
         path="/admin/register"
         element={
           <PublicAdminRoute>
             <Register />
           </PublicAdminRoute>
         }
-      />
+      /> */}
 
       {/* 📊 Dashboard */}
       <Route

@@ -1,51 +1,62 @@
-const ADMIN_USERS_KEY = "adminUsers";
-const ADMIN_TOKEN_KEY = "adminToken";
 
-export function getStoredAdmins() {
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+// Admin login
+
+export const loginAdmin = async ({ email, password }) => {
   try {
-    const users = JSON.parse(localStorage.getItem(ADMIN_USERS_KEY) || "[]");
-    return Array.isArray(users) ? users : [];
-  } catch {
-    return [];
+    const response = await fetch(`${API_URL}/api/admin/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Login API response:", data);
+      throw new Error(data.message || `Login failed: ${response.status}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Login request failed:", error);
+    throw error;
   }
-}
+};
 
-export function registerAdmin({ name, email, password }) {
-  const normalizedEmail = email.trim().toLowerCase();
-  const users = getStoredAdmins();
 
-  const alreadyExists = users.some((user) => user.email === normalizedEmail);
+// Check logged-in admin
+export const getAdminProfile = async () => {
+  const response = await fetch(`${API_URL}/api/admin/profile`, {
+    method: "GET",
+    credentials: "include",
+  });
 
-  if (alreadyExists) {
-    throw new Error("Admin already registered with this email.");
-  }
+  const data = await response.json();
 
-  const nextUsers = [
-    ...users,
-    {
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      email: normalizedEmail,
-      password,
-    },
-  ];
-
-  localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify(nextUsers));
-}
-
-export function loginAdmin({ email, password }) {
-  const normalizedEmail = email.trim().toLowerCase();
-  const users = getStoredAdmins();
-
-  const user = users.find(
-    (item) => item.email === normalizedEmail && item.password === password
-  );
-
-  if (!user) {
-    throw new Error("Invalid email or password.");
+  if (!response.ok) {
+    throw new Error(data.message || "Authentication required");
   }
 
-  const token = `admin-${user.id}`;
-  localStorage.setItem(ADMIN_TOKEN_KEY, token);
-  return token;
-}
+  return data.admin;
+};
+
+// Admin logout
+export const logoutAdmin = async () => {
+  const response = await fetch(`${API_URL}/api/admin/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Logout failed");
+  }
+
+  return data;
+};

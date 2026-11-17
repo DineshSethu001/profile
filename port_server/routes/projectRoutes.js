@@ -33,6 +33,15 @@ function normalizeOptionalUrl(value) {
   return "";
 }
 
+function normalizeTechStack(value) {
+  const values = Array.isArray(value) ? value.flat(Infinity) : [value];
+
+  return values
+    .flatMap((item) => String(item ?? "").split(","))
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function normalizeProjectPayload(body) {
   const {
     title,
@@ -47,12 +56,7 @@ function normalizeProjectPayload(body) {
     featured,
   } = body;
 
-  const normalizedTechStack = Array.isArray(techStack)
-    ? techStack.map((item) => item.trim()).filter(Boolean)
-    : String(techStack || "")
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
+  const normalizedTechStack = normalizeTechStack(techStack);
 
   const normalizedImages = Array.isArray(images)
     ? images.map((item) => normalizeOptionalUrl(item)).filter(Boolean)
